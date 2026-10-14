@@ -218,3 +218,23 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ---------------------------------------------------------------------------
+# Project-specific (pneumonia CNN comparison)
+# ---------------------------------------------------------------------------
+# Dataset — downloaded by each user, never committed (split CSVs in data/splits/ ARE committed)
+data/raw/*
+!data/raw/.gitkeep
+chest_xray/
+
+# Large training outputs: checkpoints, TensorBoard logs
+runs/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.h5
+events.out.tfevents.*
+
+# Secrets
+kaggle.json
