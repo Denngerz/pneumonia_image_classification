@@ -105,7 +105,8 @@ If a requested change would break one of these rules, stop and explain the confl
 - **Never commit directly to `main`.** Create a branch `<type>/<short-topic>` (e.g. `feat/resnet50-config`, `docs/plan`).
 - Commit messages: `Type: very short description` — e.g. `Feat: add ResNet50 config`, `Bugfix: fix split seed`.
   Types: `Feat`, `Bugfix`, `Refactor`, `Docs`, `Exp`, `Data`, `Test`, `Chore`. No scope, no trailing period.
-- Open a Pull Request into `main`; describe what, why, how it was tested, and results if any.
+- Open a Pull Request into `main`. **Title = the problem the PR solves** (e.g. `Patients leak between train and validation sets`);
+  **description = bullet list of changes + a short explanation**.
 - Never force-push, rewrite shared history, or skip hooks.
 - Only commit/push/open PRs when the user asks you to.
 

@@ -152,21 +152,20 @@ git push -u origin feat/resnet50-config
 
 1. After pushing, GitHub Desktop shows **Create Pull Request** (or **Branch → Create pull request**). It opens GitHub in your browser.
 2. Check: **base: `main`** ← **compare: `<your-branch>`**.
-3. Title: same style as a commit message.
-4. Description — copy and fill in:
+3. **Title — name the problem this PR solves** (not the list of changes, not the commit format). Examples:
+   - ✅ `Patients leak between train and validation sets`
+   - ✅ `ResNet50 is missing from the comparison`
+   - ✅ `Team has no agreed project structure`
+   - ❌ `Bugfix: split by patient` (that's a commit message), ❌ `Updates`, ❌ `My branch`
+4. **Description — a list of changes + a short explanation.** Copy and fill in:
 
    ```
-   ## What
-   Short description of the change.
+   - Change 1
+   - Change 2
+   - Change 3
 
-   ## Why
-   Reason / related task.
-
-   ## How it was tested
-   e.g. "Ran debug mode on CPU (50 images, 1 epoch)" or "Full run on Kaggle, notebook link: …"
-
-   ## Results (if any)
-   Metrics table, plots, or "n/a".
+   Short explanation (1–3 sentences): how these changes solve the problem,
+   and anything the reviewer should check (e.g. how it was tested, results).
    ```
 5. On the right, add a teammate as **Reviewer** → **Create pull request**.
 6. When the reviewer approves, click **Merge pull request** → **Confirm merge** → **Delete branch** (on GitHub).

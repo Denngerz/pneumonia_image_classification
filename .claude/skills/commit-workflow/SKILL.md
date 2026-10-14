@@ -122,20 +122,20 @@ Never `git push --force` / `--force-with-lease` to a shared branch and never pus
 
 ## 7. Open the Pull Request
 
-Target `main`. Title in commit-message style. Body template:
+Target `main`.
+
+**Title:** name the **problem** this PR solves, as a short plain sentence — not a commit-style `Type: …` line and not a
+summary of the changes. ✅ `Patients leak between train and validation sets`, ✅ `ResNet50 is missing from the comparison`
+— ❌ `Bugfix: split by patient`, ❌ `Update files`. If the problem is unclear, ask the user.
+
+**Description:** a bullet list of the changes, then a short explanation (1–3 sentences) of how they solve the problem.
+Mention how it was tested / results only if relevant. No headings.
 
 ```markdown
-## What
-Short description of the change.
+- Change 1
+- Change 2
 
-## Why
-Reason / related task.
-
-## How it was tested
-e.g. debug mode on CPU (N images, 1 epoch), or full Kaggle run (link).
-
-## Results
-Metrics table / plots, or "n/a".
+Short explanation of how these changes solve the problem.
 ```
 
 With GitHub CLI available:
