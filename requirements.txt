@@ -1,0 +1,17 @@
+# Minimum versions. Kaggle notebooks already include torch/torchvision with CUDA —
+# there, install only what is missing (do not reinstall torch).
+torch>=2.2
+torchvision>=0.17
+timm>=1.0
+scikit-learn>=1.4
+numpy>=1.26
+pandas>=2.1
+matplotlib>=3.8
+seaborn>=0.13
+albumentations>=1.4
+grad-cam>=1.5          # pytorch-grad-cam
+tensorboard>=2.15
+PyYAML>=6.0
+tqdm>=4.66
+kaggle>=1.6            # dataset download for local work
+pytest>=8.0
