@@ -1,7 +1,6 @@
 """Data pipeline checks on a few synthetic images (no dataset needed)."""
 
 from collections import Counter
-from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -9,34 +8,9 @@ import torch
 from PIL import Image
 
 from pneumonia.data import build_dataloaders, build_transforms, debug_subset, load_image, make_weighted_sampler
-from pneumonia.splits import save_splits
 from pneumonia.utils import deep_merge, load_config
 
-
-@pytest.fixture()
-def config(tmp_path: Path) -> dict:
-    """base.yaml with the split folder pointing to a temporary directory."""
-    return deep_merge(load_config(), {"data": {"splits_dir": str(tmp_path / "splits"), "num_workers": 0}})
-
-
-@pytest.fixture()
-def fake_data(tmp_path: Path, config: dict) -> Path:
-    """Images of different sizes and colour modes (like the real dataset), 3 NORMAL : 9 PNEUMONIA per split."""
-    data_dir = tmp_path / "chest_xray"
-    tables = {}
-    for split in ("train", "val", "test"):
-        rows = []
-        for label, class_name, count in ((0, "NORMAL", 3), (1, "PNEUMONIA", 9)):
-            for i in range(count):
-                rel = f"{split}/{class_name}/img{i}.jpeg"
-                (data_dir / rel).parent.mkdir(parents=True, exist_ok=True)
-                mode, size = ("RGB", (300, 200)) if i % 2 else ("L", (180, 260))
-                Image.new(mode, size, color=40 * i % 255 if mode == "L" else (10, 20, 30)).save(data_dir / rel)
-                rows.append({"path": rel, "label": label, "class_name": class_name,
-                             "patient_id": f"{class_name}/p{i}", "source_split": split})
-        tables[split] = pd.DataFrame(rows)
-    save_splits(tables, Path(config["data"]["splits_dir"]))
-    return data_dir
+# `config` and `fake_data` fixtures come from conftest.py
 
 
 def test_config_merge_keeps_shared_settings():
