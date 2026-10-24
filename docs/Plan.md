@@ -1,6 +1,6 @@
 # Project Plan — Comparison of CNN Models in Pneumonia Image Classification
 
-> Status: **foundation and folder structure agreed**. No code written yet — next: hyperparameters and division of work.
+> Status: **foundation, folder structure and hyperparameters agreed**. Work follows the team task spreadsheet (ID-1 … ID-18).
 
 ## 1. Goal
 
@@ -36,7 +36,7 @@ preprocessing, augmentation, training settings and metric code. Only the archite
 | `scikit-learn` | Train/val split, metrics (precision, recall, F1, ROC-AUC, confusion matrix) |
 | `numpy`, `pandas` | Data handling, result tables |
 | `matplotlib`, `seaborn` | Plots: training curves, confusion matrices, ROC curves |
-| `albumentations` (or `torchvision.transforms.v2`) | Data augmentation |
+| `torchvision.transforms.v2` | Data augmentation (part of torchvision — no extra dependency; `albumentations` was dropped to avoid OpenCV version conflicts on Kaggle) |
 | `pytorch-grad-cam` | Grad-CAM heatmaps — shows which image regions a model focuses on |
 | `tensorboard` | Live training curves |
 | `PyYAML` | Reading experiment config files |
@@ -58,9 +58,9 @@ Minimum versions are listed in [`requirements.txt`](../requirements.txt). On Kag
 
 | Issue | Handling |
 |---|---|
-| Official `val/` has only **16 images** — useless for model selection | Re-split official `train/` into train / val (≈85 / 15), stratified by class, fixed random seed. Official `test/` stays untouched as the final held-out test set. |
-| Several images per patient (pneumonia file names contain `personN_…`) | Split by patient ID where possible, so the same patient never appears in both train and val (avoids data leakage). |
-| Class imbalance (~3 pneumonia : 1 normal) | Class-weighted loss (or weighted sampler). Report metrics beyond accuracy. |
+| Official `val/` has only **16 images** — useless for model selection | Pool official `train/` + `val/` and re-split into train / val (85 / 15), stratified by class, seed 42. Official `test/` stays untouched as the final held-out test set. |
+| Several images per patient | Split by patient ID so the same patient never appears in both train and val (avoids data leakage). Patient ID: `personN` for PNEUMONIA files; `IM-XXXX` for NORMAL files (`NORMAL2-IM-XXXX` is a separate group). Train↔test patient overlap is only reported in the EDA notebook — the official test set is not changed. |
+| Class imbalance (~3 pneumonia : 1 normal) | **Weighted random sampler** (inverse class frequency, with replacement, one epoch = number of training images) with plain cross-entropy loss. Report metrics beyond accuracy. |
 | Images differ in size, are grayscale | Resize to **224×224**, convert to 3 channels, normalize with ImageNet statistics (models are ImageNet-pretrained). |
 
 **Data is never committed to git.** Each person downloads it locally or attaches it in Kaggle.
@@ -81,10 +81,29 @@ All pretrained models are loaded from timm/torchvision with ImageNet weights and
 
 ## 6. Training protocol (identical for every model)
 
-- Same split files, same seed, same image size (224), same augmentation (light: small rotation, shift/zoom, brightness/contrast; **no** horizontal flip by default, since anatomy is asymmetric — to be confirmed).
-- Same loss (class-weighted cross-entropy), optimizer (AdamW), learning-rate schedule, batch size, max epochs, early stopping on validation metric.
-- Fixed random seeds; if time allows, repeat each model with **3 seeds** and report mean ± std.
-- Code must run on both CPU and GPU without changes (device chosen automatically).
+Agreed hyperparameters (stored in `configs/base.yaml`; **no per-model overrides**, the baseline CNN included):
+
+| Setting | Value |
+|---|---|
+| Image size | 224×224, grayscale → 3 channels, ImageNet normalization |
+| Augmentation (train only) | rotation ±10°, shift / scale ±10%, brightness / contrast ±0.1; **no** horizontal flip (anatomy is asymmetric) |
+| Batch size | 32 |
+| Optimizer | AdamW, learning rate 1e-4, weight decay 1e-4 |
+| LR schedule | cosine decay with 1 warm-up epoch |
+| Epochs | max 25, early stopping on **validation ROC-AUC** with patience 5 (ties broken by validation loss); the best epoch is kept |
+| Fine-tuning | all layers trained (full fine-tune) |
+| Class imbalance | weighted random sampler + plain cross-entropy |
+| Precision | mixed precision (AMP) on GPU |
+| Decision threshold | 0.5 on the PNEUMONIA probability |
+| Seeds | 42 for the first run of every model; then 43 and 44 → report mean ± std over 3 seeds |
+| Determinism | Python / NumPy / PyTorch seeded, `cudnn.deterministic = True`, `cudnn.benchmark = False` |
+| Hardware | every Kaggle run on **one T4 GPU**, so training and inference times are comparable |
+
+Models: baseline CNN = 4 × [Conv 3×3 → BatchNorm → ReLU → MaxPool] with 32 → 64 → 128 → 256 channels, global average
+pooling, dropout 0.3, linear layer → 2 classes. Pretrained models come from timm with their default ImageNet weights
+(`vgg16`, `resnet50`, `densenet121`, `efficientnet_b0`, `mobilenetv3_large_100`) and a new 2-class head.
+
+Code must run on both CPU and GPU without changes (device chosen automatically).
 
 ## 7. Evaluation
 
@@ -92,8 +111,10 @@ Measured on the untouched official **test** set:
 
 - Accuracy, Precision, **Recall / Sensitivity** (most important clinically — missing pneumonia is worse), **Specificity**, F1-score, ROC-AUC
 - Confusion matrix and ROC curve per model
-- Number of parameters, training time, inference time per image
-- **Grad-CAM** heatmaps for qualitative comparison (does the model look at the lungs?)
+- Number of parameters, training time, inference time per image (GPU, batch size 1, median over the test set after 10 warm-up passes)
+- **Grad-CAM** heatmaps for qualitative comparison (does the model look at the lungs?). Computed on Kaggle right after
+  training from the best checkpoint, on the same fixed set of test images for every model (including misclassified ones);
+  only the PNG figures are committed.
 
 Final output: one comparison table + plots used in the report/presentation.
 
@@ -186,8 +207,8 @@ and Internet → the notebook clones the repo, installs missing requirements and
 ## 12. Open items (next discussions)
 
 - [x] Project folder structure (section 10)
-- [ ] Make the GitHub repository public (repo owner: Settings → General → Danger Zone → Change visibility)
-- [ ] Exact hyperparameters (learning rate, batch size, epochs, augmentation details)
+- [x] Make the GitHub repository public
+- [x] Exact hyperparameters (section 6)
 - [ ] Optional: external test set to measure generalization (e.g. RSNA Pneumonia Detection Challenge subset)
 - [ ] Optional: 3-class variant (NORMAL / BACTERIAL / VIRAL)
-- [ ] Division of work between team members
+- [x] Division of work between team members — task spreadsheet ID-1 … ID-18

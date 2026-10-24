@@ -8,7 +8,6 @@ numpy>=1.26
 pandas>=2.1
 matplotlib>=3.8
 seaborn>=0.13
-albumentations>=1.4
 grad-cam>=1.5          # pytorch-grad-cam
 tensorboard>=2.15
 PyYAML>=6.0
