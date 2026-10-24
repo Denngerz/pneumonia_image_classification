@@ -1,0 +1,44 @@
+# Shared settings for EVERY model (docs/Plan.md section 6).
+# Model configs in configs/models/ only set model.name — do not override anything else there.
+
+seed: 42
+
+data:
+  splits_dir: data/splits          # relative to the repository root
+  image_size: 224
+  num_workers: 2
+  cache_images: true               # decode + resize every image once and keep it in memory (~300 MB)
+
+augmentation:                      # training images only
+  rotation_degrees: 10
+  translate: 0.1                   # max shift as a fraction of image size
+  scale: [0.9, 1.1]
+  brightness: 0.1
+  contrast: 0.1
+  horizontal_flip: false           # anatomy is asymmetric
+
+training:
+  batch_size: 32
+  epochs: 25
+  optimizer: adamw
+  lr: 1.0e-4
+  weight_decay: 1.0e-4
+  scheduler: cosine
+  warmup_epochs: 1
+  class_balancing: weighted_sampler
+  amp: true                        # mixed precision, used only on GPU
+  early_stopping_metric: roc_auc   # on the validation set
+  early_stopping_patience: 5
+
+evaluation:
+  threshold: 0.5                   # on the PNEUMONIA probability
+  inference_warmup: 10
+
+model:
+  name: null                       # set by configs/models/<model>.yaml
+  pretrained: true
+
+debug:                             # --debug: quick CPU check
+  images_per_class: 16
+  epochs: 1
+  batch_size: 8
