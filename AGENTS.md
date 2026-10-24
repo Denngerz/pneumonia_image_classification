@@ -23,7 +23,8 @@ if a request contradicts it, point that out to the user before proceeding.
 
 - Python 3.11, `venv` + `requirements.txt`
 - PyTorch + torchvision + timm (ImageNet-pretrained models)
-- scikit-learn, numpy, pandas, matplotlib, seaborn, albumentations, pytorch-grad-cam, tensorboard, PyYAML, tqdm
+- scikit-learn, numpy, pandas, matplotlib, seaborn, pytorch-grad-cam, tensorboard, PyYAML, tqdm
+- Augmentation with `torchvision.transforms.v2` (not albumentations)
 - Training runs on **Kaggle Notebooks** (GPU); local development on CPU with a small data subset
 
 Do not introduce other deep learning frameworks (TensorFlow/Keras, JAX) or experiment-tracking services that need
