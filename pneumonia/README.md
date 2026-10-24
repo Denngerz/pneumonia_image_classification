@@ -5,7 +5,7 @@ Notebooks and scripts **import** from here; they never copy this logic.
 
 | Planned module | Responsibility |
 |---|---|
-| `data.py` | Dataset class, transforms (resize 224, 3 channels, ImageNet normalization, augmentation), DataLoaders built from `data/splits/*.csv` |
+| `data.py` | Dataset class (grayscale → resize 224 → 3 channels, optional in-memory cache of resized images), augmentation with `torchvision.transforms.v2`, ImageNet normalization, class-balancing weighted sampler; `build_dataloaders(config, data_dir, debug)` returns train/val/test loaders from `data/splits/*.csv` |
 | `splits.py` | Patient-level, stratified train/val split of the official train set; official test set kept untouched |
 | `models.py` | Model registry: custom baseline CNN + timm models, all with a 2-class output head |
 | `train.py` | Shared training loop: class-weighted loss, optimizer, LR schedule, early stopping, logging, checkpoints to `runs/` |
