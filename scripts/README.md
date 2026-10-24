@@ -9,4 +9,8 @@ Thin "buttons" that call code from `pneumonia/`. Run them from the repository ro
 | `compare_results.py` | Build the comparison table and plots from all runs | `python scripts/compare_results.py` |
 
 All scripts accept `--data-dir` (so the same command works locally and on Kaggle) and `train.py` has a `--debug` mode
-(few images, 1 epoch) for quick checks on CPU.
+(16 images per class, 1 epoch, ~1 minute on a laptop CPU) for quick checks.
+
+`train.py` writes `config.yaml` and `history.csv` to `results/<model>_seed<seed>/` and `best.pt`, `last.pt` and TensorBoard
+logs to `runs/<model>_seed<seed>/`. Debug runs write to `runs/debug/` instead, so they never end up in `results/`.
+Change the folders with `--results-dir` / `--runs-dir` (e.g. `/kaggle/working/...` on Kaggle).
