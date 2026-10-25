@@ -59,8 +59,15 @@ Do **not** change anything else: all training settings come from `configs/base.y
    | Run | Total time |
    |---|---|
    | `DEBUG = True`, all 6 models | ~3.5 min (checked in task ID-7) |
-   | `baseline_cnn`, full run (25 epochs, ~9 s each) | ~6 min (task ID-8) |
-   | pretrained models | fill in after tasks ID-9 … ID-13 |
+   | `baseline_cnn` (25 epochs, ~9 s each) | ~6 min |
+   | `vgg16` (~43 s per epoch) | ~14 min |
+   | `resnet50` (~19 s per epoch) | ~6 min |
+   | `densenet121` (~23 s per epoch) | ~8 min |
+   | `efficientnet_b0` (~14 s per epoch, first epoch ~40 s) | ~9 min |
+   | `mobilenetv3_large` (~10 s per epoch, first epoch ~33 s) | ~7 min |
+
+   Measured on seed 42 (tasks ID-8 … ID-13); early stopping makes the number of epochs differ between runs.
+   All 6 models in one version take about 50 minutes of the 30-hour weekly GPU quota.
 
    About 1.5 minutes of every run is setup: cloning, installing and loading all images into memory once.
 
