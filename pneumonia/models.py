@@ -61,3 +61,19 @@ def create_model(name: str, pretrained: bool = True, num_classes: int = NUM_CLAS
 def count_parameters(model: nn.Module) -> int:
     """Number of trainable parameters."""
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+
+# Grad-CAM looks at the last convolutional feature map of each network (before global pooling).
+GRADCAM_TARGETS = {
+    "baseline_cnn": lambda m: m.features[-3],   # BatchNorm of the last conv block (28×28)
+    "vgg16": lambda m: m.features[-3],          # last Conv2d (14×14)
+    "resnet50": lambda m: m.layer4[-1],          # last bottleneck block (7×7)
+    "densenet121": lambda m: m.features.norm5,   # final BatchNorm + ReLU (7×7)
+    "efficientnet_b0": lambda m: m.bn2,          # BatchNorm + SiLU after conv_head (7×7)
+    "mobilenetv3_large": lambda m: m.blocks[-1],  # last block; conv_head comes after pooling here (7×7)
+}
+
+
+def gradcam_target_layer(model: nn.Module, name: str) -> nn.Module:
+    """The layer whose activations Grad-CAM turns into a heat map for this model."""
+    return GRADCAM_TARGETS[name](model)
