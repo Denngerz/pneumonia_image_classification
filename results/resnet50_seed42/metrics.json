@@ -1,0 +1,31 @@
+{
+  "run": "resnet50_seed42",
+  "model": "resnet50",
+  "seed": 42,
+  "threshold": 0.5,
+  "test_images": 624,
+  "test": {
+    "accuracy": 0.8493589743589743,
+    "precision": 0.8083333333333333,
+    "recall": 0.9948717948717949,
+    "specificity": 0.6068376068376068,
+    "f1": 0.8919540229885058,
+    "roc_auc": 0.9786324786324786,
+    "confusion_matrix": {
+      "tn": 142,
+      "fp": 92,
+      "fn": 2,
+      "tp": 388
+    }
+  },
+  "parameters": 23512130,
+  "best_epoch": 7,
+  "epochs_trained": 12,
+  "best_val_roc_auc": 0.9991678413124332,
+  "best_val_loss": 0.0395714379847049,
+  "training_seconds": 237.73749989599992,
+  "inference_ms_median": 8.41769200002318,
+  "inference_ms_mean": 8.605311846155363,
+  "device": "cuda",
+  "gpu": "Tesla T4"
+}
