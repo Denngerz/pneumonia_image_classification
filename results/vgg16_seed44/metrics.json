@@ -1,0 +1,31 @@
+{
+  "run": "vgg16_seed44",
+  "model": "vgg16",
+  "seed": 44,
+  "threshold": 0.5,
+  "test_images": 624,
+  "test": {
+    "accuracy": 0.9102564102564102,
+    "precision": 0.9033816425120773,
+    "recall": 0.958974358974359,
+    "specificity": 0.8290598290598291,
+    "f1": 0.9303482587064676,
+    "roc_auc": 0.9689513477975016,
+    "confusion_matrix": {
+      "tn": 194,
+      "fp": 40,
+      "fn": 16,
+      "tp": 374
+    }
+  },
+  "parameters": 134268738,
+  "best_epoch": 4,
+  "epochs_trained": 9,
+  "best_val_roc_auc": 0.999269738294584,
+  "best_val_loss": 0.1402294784784317,
+  "training_seconds": 431.77498321300027,
+  "inference_ms_median": 9.774366000101509,
+  "inference_ms_mean": 9.784551205123867,
+  "device": "cuda",
+  "gpu": "Tesla T4"
+}

@@ -1,0 +1,31 @@
+{
+  "run": "baseline_cnn_seed44",
+  "model": "baseline_cnn",
+  "seed": 44,
+  "threshold": 0.5,
+  "test_images": 624,
+  "test": {
+    "accuracy": 0.6666666666666666,
+    "precision": 0.6521739130434783,
+    "recall": 1.0,
+    "specificity": 0.1111111111111111,
+    "f1": 0.7894736842105263,
+    "roc_auc": 0.9248411133026517,
+    "confusion_matrix": {
+      "tn": 26,
+      "fp": 208,
+      "fn": 0,
+      "tp": 390
+    }
+  },
+  "parameters": 389410,
+  "best_epoch": 14,
+  "epochs_trained": 19,
+  "best_val_roc_auc": 0.9923662177538508,
+  "best_val_loss": 0.2365273386240005,
+  "training_seconds": 159.37833803499996,
+  "inference_ms_median": 0.9812499999952706,
+  "inference_ms_mean": 1.0081514359021946,
+  "device": "cuda",
+  "gpu": "Tesla T4"
+}
