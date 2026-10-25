@@ -59,7 +59,10 @@ Do **not** change anything else: all training settings come from `configs/base.y
    | Run | Total time |
    |---|---|
    | `DEBUG = True`, all 6 models | ~3.5 min (checked in task ID-7) |
-   | full run, one model | fill in after task ID-8 |
+   | `baseline_cnn`, full run (25 epochs, ~9 s each) | ~6 min (task ID-8) |
+   | pretrained models | fill in after tasks ID-9 … ID-13 |
+
+   About 1.5 minutes of every run is setup: cloning, installing and loading all images into memory once.
 
 ## 4. Download the results
 
