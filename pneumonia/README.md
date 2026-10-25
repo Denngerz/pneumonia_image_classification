@@ -9,8 +9,8 @@ Notebooks and scripts **import** from here; they never copy this logic.
 | `splits.py` | Patient-level, stratified train/val split of the official train set; official test set kept untouched |
 | `models.py` | Model registry: custom baseline CNN + timm models, all with a 2-class output head |
 | `train.py` | Shared training loop: class-weighted loss, optimizer, LR schedule, early stopping, logging, checkpoints to `runs/` |
-| `evaluate.py` | One evaluation function for all models: accuracy, precision, recall, specificity, F1, ROC-AUC, confusion matrix, timing |
-| `gradcam.py` | Grad-CAM heatmaps |
+| `evaluate.py` | One evaluation for all models: `compute_metrics` (accuracy, precision, recall, specificity, F1, ROC-AUC, confusion matrix), inference timing, `evaluate_run` → `metrics.json` + `test_predictions.csv` |
+| `gradcam.py` | Grad-CAM heat maps on fixed test images + each model's mistakes → `gradcam.jpg`, `gradcam_fixed.npz` (target layers are listed in `models.py`) |
 | `utils.py` | Seeding, device selection (GPU if available, else CPU), timers, config loading |
 
 Imports work when commands are run from the repository root (no install step needed).

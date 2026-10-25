@@ -13,6 +13,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from pneumonia.data import load_split_tables  # noqa: E402
+from pneumonia.evaluate import evaluate_run  # noqa: E402
+from pneumonia.gradcam import run_gradcam  # noqa: E402
 from pneumonia.train import fit  # noqa: E402
 from pneumonia.utils import load_config  # noqa: E402
 
@@ -24,7 +27,7 @@ def parse_args() -> argparse.Namespace:
                         help="Folder that contains the official train/, val/ and test/ folders")
     parser.add_argument("--seed", type=int, default=None, help="Overrides the seed from configs/base.yaml")
     parser.add_argument("--results-dir", type=Path, default=Path("results"),
-                        help="Small outputs: config.yaml, history.csv (committed)")
+                        help="Small outputs: config.yaml, history.csv, metrics.json, Grad-CAM (committed)")
     parser.add_argument("--runs-dir", type=Path, default=Path("runs"),
                         help="Large outputs: checkpoints, TensorBoard logs (not committed)")
     parser.add_argument("--debug", action="store_true",
@@ -39,6 +42,13 @@ def main() -> None:
         config["seed"] = args.seed
     results_dir = args.runs_dir / "debug" if args.debug else args.results_dir
     run = fit(config, args.data_dir, results_dir, args.runs_dir, debug=args.debug)
+    test_df = load_split_tables(config, debug=args.debug)["test"]
+    metrics = evaluate_run(run, config, test_df)
+    run_gradcam(run, config, test_df)
+    test = metrics["test"]
+    print(f"Test: accuracy {test['accuracy']:.4f} | recall {test['recall']:.4f} | "
+          f"specificity {test['specificity']:.4f} | F1 {test['f1']:.4f} | ROC-AUC {test['roc_auc']:.4f} | "
+          f"{metrics['inference_ms_median']:.1f} ms/image")
     print(f"Done: best epoch {run['best_epoch']} of {run['epochs_trained']}, "
           f"{run['training_seconds'] / 60:.1f} min. Outputs: {run['results_dir']} and {run['runs_dir']}")
 
