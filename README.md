@@ -13,7 +13,7 @@ Comparison of Convolutional Neural Network (CNN) architectures for pneumonia cla
 
 | Folder | Contents |
 |---|---|
-| [`docs/`](docs/) | [Plan.md](docs/Plan.md) — decisions and rationale; [COMMIT_GUIDE.md](docs/COMMIT_GUIDE.md) — how to commit with GitHub Desktop |
+| [`docs/`](docs/) | [Plan.md](docs/Plan.md) — decisions and rationale; [COMMIT_GUIDE.md](docs/COMMIT_GUIDE.md) — how to commit with GitHub Desktop; [KAGGLE_GUIDE.md](docs/KAGGLE_GUIDE.md) — how to train a model on Kaggle |
 | [`configs/`](configs/) | Experiment settings: shared `base.yaml` + one file per model |
 | [`data/`](data/) | `raw/` dataset (not in git) and committed `splits/` |
 | [`pneumonia/`](pneumonia/) | Shared Python code: data, models, training, evaluation |

@@ -6,7 +6,7 @@ They import from `pneumonia/` and must not contain their own copies of training 
 | Planned notebook | Purpose |
 |---|---|
 | `01_eda.ipynb` | Explore the dataset: class counts, sample images, image sizes, patients per class |
-| `02_kaggle_train.ipynb` | Kaggle launcher: `git clone` this repo, install requirements, run `scripts/train.py` for the chosen configs, save outputs |
+| `02_kaggle_train.ipynb` | Kaggle launcher: `git clone` this repo, install the missing libraries, run `scripts/train.py` for the chosen models and seeds, zip the results. How to use it: [docs/KAGGLE_GUIDE.md](../docs/KAGGLE_GUIDE.md) |
 | `03_results.ipynb` | Comparison table, training curves, confusion matrices, ROC curves, Grad-CAM — figures for the report |
 
 Naming: `NN_short_name.ipynb`. Clear outputs of training notebooks before committing; results notebooks may keep their charts.
