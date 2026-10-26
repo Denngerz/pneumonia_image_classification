@@ -1,0 +1,31 @@
+{
+  "run": "densenet121_seed43",
+  "model": "densenet121",
+  "seed": 43,
+  "threshold": 0.5,
+  "test_images": 624,
+  "test": {
+    "accuracy": 0.9118589743589743,
+    "precision": 0.8815489749430524,
+    "recall": 0.9923076923076923,
+    "specificity": 0.7777777777777778,
+    "f1": 0.9336550060313631,
+    "roc_auc": 0.9785064650449267,
+    "confusion_matrix": {
+      "tn": 182,
+      "fp": 52,
+      "fn": 3,
+      "tp": 387
+    }
+  },
+  "parameters": 6955906,
+  "best_epoch": 12,
+  "epochs_trained": 17,
+  "best_val_roc_auc": 0.9996348691472922,
+  "best_val_loss": 0.0411373786628246,
+  "training_seconds": 395.68393641000006,
+  "inference_ms_median": 24.672275000000354,
+  "inference_ms_mean": 24.87615225160347,
+  "device": "cuda",
+  "gpu": "Tesla T4"
+}

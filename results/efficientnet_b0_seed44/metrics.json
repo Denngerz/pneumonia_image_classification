@@ -1,0 +1,31 @@
+{
+  "run": "efficientnet_b0_seed44",
+  "model": "efficientnet_b0",
+  "seed": 44,
+  "threshold": 0.5,
+  "test_images": 624,
+  "test": {
+    "accuracy": 0.8814102564102564,
+    "precision": 0.841991341991342,
+    "recall": 0.9974358974358974,
+    "specificity": 0.688034188034188,
+    "f1": 0.9131455399061033,
+    "roc_auc": 0.9740905106289721,
+    "confusion_matrix": {
+      "tn": 161,
+      "fp": 73,
+      "fn": 1,
+      "tp": 389
+    }
+  },
+  "parameters": 4010110,
+  "best_epoch": 11,
+  "epochs_trained": 16,
+  "best_val_roc_auc": 0.9984205967766588,
+  "best_val_loss": 0.0893266499042511,
+  "training_seconds": 248.35516996399997,
+  "inference_ms_median": 13.098896500082446,
+  "inference_ms_mean": 13.223558918264407,
+  "device": "cuda",
+  "gpu": "Tesla T4"
+}
