@@ -10,6 +10,7 @@ Notebooks and scripts **import** from here; they never copy this logic.
 | `models.py` | Model registry: custom baseline CNN + timm models, all with a 2-class output head |
 | `train.py` | Shared training loop: class-weighted loss, optimizer, LR schedule, early stopping, logging, checkpoints to `runs/` |
 | `evaluate.py` | One evaluation for all models: `compute_metrics` (accuracy, precision, recall, specificity, F1, ROC-AUC, confusion matrix), inference timing, `evaluate_run` → `metrics.json` + `test_predictions.csv` |
+| `compare.py` | Collects all `results/*/metrics.json`, builds the comparison table (mean ± std over seeds) and the report figures |
 | `gradcam.py` | Grad-CAM heat maps on fixed test images + each model's mistakes → `gradcam.jpg`, `gradcam_fixed.npz` (target layers are listed in `models.py`) |
 | `utils.py` | Seeding, device selection (GPU if available, else CPU), timers, config loading |
 

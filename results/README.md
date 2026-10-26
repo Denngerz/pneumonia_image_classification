@@ -12,7 +12,10 @@ One folder per run, named `<model>_seed<seed>` (e.g. `resnet50_seed42/`), contai
 | `gradcam_fixed.npz` | The heat maps of the 8 fixed images as arrays, to build side-by-side comparisons of all models |
 
 Also here:
-- `comparison.csv` / `comparison.md` — table of all runs, built by `scripts/compare_results.py`
+- `comparison.md` / `comparison.csv` — per-model mean ± std over seeds (primary metric: ROC-AUC), and
+  `comparison_runs.csv` — one row per run; all built by `scripts/compare_results.py`
+- `figures/comparison_*.png` — metric bars, ROC curves, training curves, confusion matrices, quality vs speed
+  (shown in `notebooks/03_results.ipynb`)
 - `figures/` — PNG plots used in the report (curves, confusion matrices, ROC, Grad-CAM)
 
 Large outputs (model checkpoints, TensorBoard logs) go to `runs/`, which is **not** committed.

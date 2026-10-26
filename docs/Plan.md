@@ -116,7 +116,14 @@ Measured on the untouched official **test** set:
   training from the best checkpoint, on the same fixed set of test images for every model (including misclassified ones);
   only the PNG figures are committed.
 
-Final output: one comparison table + plots used in the report/presentation.
+Final output: one comparison table + plots used in the report/presentation (`scripts/compare_results.py` →
+`results/comparison.md` and `results/figures/comparison_*.png`).
+
+**Primary metric (team decision after the 18 runs):** models are compared by **test ROC-AUC, mean ± std over seeds
+42–44**. ROC-AUC does not depend on the decision threshold and was stable across seeds (std ≤ 0.008), while metrics at
+the fixed 0.5 threshold varied strongly (e.g. baseline specificity 0.11–0.77). Threshold-0.5 metrics are still reported,
+with that caveat. Choosing a per-model threshold on the validation set is noted in the report as future work; the
+threshold is never tuned on the test set.
 
 ## 8. Experiment tracking
 
@@ -211,4 +218,5 @@ and Internet → the notebook clones the repo, installs missing requirements and
 - [x] Exact hyperparameters (section 6)
 - [ ] Optional: external test set to measure generalization (e.g. RSNA Pneumonia Detection Challenge subset)
 - [ ] Optional: 3-class variant (NORMAL / BACTERIAL / VIRAL)
+- [ ] Optional: per-model decision threshold chosen on the validation set (section 7)
 - [x] Division of work between team members — task spreadsheet ID-1 … ID-18
