@@ -1,0 +1,7 @@
+model,border_share_mean,border_share_std,empty_maps
+baseline_cnn,0.3598,0.0079,0
+vgg16,0.4201,0.1053,6
+resnet50,0.1364,0.0298,0
+densenet121,0.3175,0.0089,0
+efficientnet_b0,0.2865,0.0443,0
+mobilenetv3_large,0.3906,0.0457,0
