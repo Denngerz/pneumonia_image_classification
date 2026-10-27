@@ -2,7 +2,8 @@
 Comparison of Convolutional Neural Network (CNN) architectures for pneumonia classification in X-ray images, evaluating model performance, accuracy, and generalization to identify the most effective approach for medical image classification.
 
 > Status: **done** — 6 models × 3 seeds trained and compared. Results in one page: [results/SUMMARY.md](results/SUMMARY.md);
-> full table: [results/comparison.md](results/comparison.md); decisions: [docs/Plan.md](docs/Plan.md).
+> full table: [results/comparison.md](results/comparison.md); decisions: [docs/Plan.md](docs/Plan.md);
+> **where to find every result file: [RESULTS_GUIDE.md](RESULTS_GUIDE.md)**.
 
 | Model | Test ROC-AUC (mean ± std, 3 seeds) | ms / image (T4) | Parameters |
 |---|---|---|---|
