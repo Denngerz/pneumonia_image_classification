@@ -7,7 +7,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pneumonia.compare import build_report, collect_runs, mean_roc_curve, summarize, summary_markdown
+from PIL import Image
+
+from pneumonia.compare import (border_share, build_gradcam_report, build_report, collect_runs, mean_roc_curve,
+                               summarize, summary_markdown)
 
 
 def _fake_run(results_dir: Path, model: str, seed: int, auc: float, rng: np.random.Generator) -> None:
@@ -26,6 +29,9 @@ def _fake_run(results_dir: Path, model: str, seed: int, auc: float, rng: np.rand
         folder / "test_predictions.csv", index=False)
     pd.DataFrame({"epoch": [1, 2, 3], "train_loss": [0.6, 0.4, 0.3], "val_loss": [0.5, 0.4, 0.45],
                   "val_roc_auc": [0.9, 0.95, 0.94]}).to_csv(folder / "history.csv", index=False)
+    np.savez_compressed(folder / "gradcam_fixed.npz", cams=rng.integers(0, 255, (2, 32, 32), dtype=np.uint8),
+                        paths=np.array(["test/NORMAL/a.jpeg", "test/PNEUMONIA/b.jpeg"]), labels=np.array([0, 1]),
+                        preds=np.array([1, 1]), probs=np.array([0.7, 0.9]))
 
 
 @pytest.fixture()
@@ -64,6 +70,32 @@ def test_mean_roc_curve_is_monotonic():
     curve = mean_roc_curve([df, df], grid)
     assert curve[0] == 0 and curve[-1] == 1
     assert np.all(np.diff(curve) >= 0)
+
+
+def test_border_share():
+    uniform = np.ones((1, 100, 100))
+    centre = np.zeros((1, 100, 100))
+    centre[0, 40:60, 40:60] = 1
+    frame = np.ones((1, 100, 100))
+    frame[0, 10:90, 10:90] = 0
+    shares = border_share(np.concatenate([uniform, centre, frame, np.zeros((1, 100, 100))]), border=0.1)
+    assert shares[0] == pytest.approx(0.36)
+    assert shares[1] == pytest.approx(0.0)
+    assert shares[2] == pytest.approx(1.0)
+    assert np.isnan(shares[3])  # an empty heat map has no "heat" to place
+
+
+def test_gradcam_report(fake_results, tmp_path):
+    data_dir = tmp_path / "chest_xray"
+    for rel in ("test/NORMAL/a.jpeg", "test/PNEUMONIA/b.jpeg"):
+        (data_dir / rel).parent.mkdir(parents=True, exist_ok=True)
+        Image.new("L", (64, 48), color=120).save(data_dir / rel)
+    border = build_gradcam_report(fake_results, fake_results / "figures", data_dir, seed=42)
+    assert list(border["model"]) == ["baseline_cnn", "resnet50"]
+    assert border["border_share_mean"].between(0, 1).all()
+    assert (fake_results / "gradcam_border_share.csv").exists()
+    assert (fake_results / "figures" / "gradcam_border_share.png").exists()
+    assert (fake_results / "figures" / "gradcam_comparison_seed42.jpg").exists()
 
 
 def test_build_report_writes_tables_and_figures(fake_results):

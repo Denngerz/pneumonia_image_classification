@@ -15,9 +15,12 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
+from pytorch_grad_cam.utils.image import show_cam_on_image  # noqa: E402
 from sklearn.metrics import roc_curve  # noqa: E402
 
+from pneumonia.data import load_image  # noqa: E402
 from pneumonia.models import MODEL_NAMES  # noqa: E402
+from pneumonia.splits import CLASS_NAMES  # noqa: E402
 
 METRICS = ["roc_auc", "accuracy", "recall", "specificity", "precision", "f1"]
 METRIC_LABELS = {"roc_auc": "ROC-AUC", "accuracy": "Accuracy", "recall": "Recall (sensitivity)",
@@ -250,6 +253,119 @@ def plot_efficiency(summary: pd.DataFrame, path: Path) -> None:
     fig.tight_layout()
     fig.savefig(path, dpi=150, facecolor=SURFACE)
     plt.close(fig)
+
+
+# ----------------------------------------------------------------------------------------------- Grad-CAM
+
+# Width of the image frame (fraction of each side) where image borders, the "R" side marker, shoulders and neck sit.
+BORDER_FRACTION = 0.10
+
+
+def load_fixed_cams(results_dir: Path, run: str) -> dict[str, np.ndarray]:
+    """Grad-CAM heat maps (0–1) of the 8 fixed test images saved by `pneumonia.gradcam.run_gradcam`."""
+    with np.load(Path(results_dir) / run / "gradcam_fixed.npz") as data:
+        arrays = {key: data[key] for key in data.files}
+    arrays["cams"] = arrays["cams"].astype(np.float32) / 255.0
+    return arrays
+
+
+def border_share(cams: np.ndarray, border: float = BORDER_FRACTION) -> np.ndarray:
+    """Share of each heat map's total "heat" that lies in the outer frame of the image.
+
+    A map spread evenly over the image gives 1 − (1 − 2·border)², i.e. 0.36 for border = 0.10. Higher values mean the
+    model relied on image edges and corners (markers, shoulders, neck) rather than the central lung area.
+    """
+    _, height, width = cams.shape
+    dy, dx = int(round(height * border)), int(round(width * border))
+    total = cams.sum(axis=(1, 2))
+    inner = cams[:, dy:height - dy, dx:width - dx].sum(axis=(1, 2))
+    return np.where(total > 0, 1.0 - inner / np.maximum(total, 1e-12), np.nan)
+
+
+def gradcam_border_table(runs: pd.DataFrame, results_dir: Path) -> pd.DataFrame:
+    """Mean border share per run over the fixed images, and per model mean ± std over seeds."""
+    rows = []
+    for _, run in runs.iterrows():
+        shares = border_share(load_fixed_cams(results_dir, run["run"])["cams"])
+        rows.append({"model": run["model"], "seed": run["seed"], "border_share": float(np.nanmean(shares)),
+                     "empty_maps": int(np.isnan(shares).sum())})
+    per_run = pd.DataFrame(rows)
+    per_model = per_run.groupby("model", sort=False).agg(border_share_mean=("border_share", "mean"),
+                                                       border_share_std=("border_share", "std"),
+                                                       empty_maps=("empty_maps", "sum")).reset_index()
+    return per_model
+
+
+def plot_gradcam_comparison(runs: pd.DataFrame, results_dir: Path, data_dir: Path, seed: int, path: Path) -> None:
+    """Grid: one row per fixed test image, first column the X-ray, then each model's heat map for that image."""
+    selected = runs[runs["seed"] == seed]
+    models = list(dict.fromkeys(selected["model"]))
+    cams = {m: load_fixed_cams(results_dir, f"{m}_seed{seed}") for m in models}
+    reference = cams[models[0]]
+    size = reference["cams"].shape[-1]
+    n_images = len(reference["paths"])
+    fig, axes = _figure(n_images, len(models) + 1, figsize=(1.75 * (len(models) + 1), 1.95 * n_images))
+    for i, rel_path in enumerate(reference["paths"]):
+        gray = np.asarray(load_image(Path(data_dir) / str(rel_path), size))
+        rgb = np.repeat(gray[..., None], 3, axis=2).astype(np.float32) / 255.0
+        axes[i][0].imshow(gray, cmap="gray")
+        axes[i][0].set_ylabel(f"true\n{CLASS_NAMES[int(reference['labels'][i])]}", fontsize=8, color=INK_SECONDARY)
+        for j, model in enumerate(models, start=1):
+            run = cams[model]
+            assert str(run["paths"][i]) == str(rel_path), "fixed Grad-CAM images differ between runs"
+            axes[i][j].imshow(show_cam_on_image(rgb, run["cams"][i], use_rgb=True))
+            wrong = int(run["preds"][i]) != int(run["labels"][i])
+            axes[i][j].set_xlabel(f"p={run['probs'][i]:.2f}" + ("  ✗" if wrong else ""), fontsize=7.5,
+                                  color="#d03b3b" if wrong else INK_SECONDARY, labelpad=2)
+    for j, title in enumerate(["X-ray"] + [MODEL_LABELS[m] for m in models]):
+        axes[0][j].set_title(title, fontsize=9, color=INK)
+    for ax in axes.ravel():
+        ax.set_xticks([])
+        ax.set_yticks([])
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+    fig.suptitle(f"Grad-CAM on the same 8 test images (seed {seed}); p = predicted probability of pneumonia, "
+                 "✗ = wrong at threshold 0.5", color=INK, fontsize=10)
+    fig.tight_layout()
+    fig.savefig(path, dpi=110, facecolor=SURFACE, pil_kwargs={"quality": 85})
+    plt.close(fig)
+
+
+def plot_border_share(border: pd.DataFrame, path: Path) -> None:
+    """Bar per model: share of Grad-CAM heat on the image frame (dashed line = evenly spread map)."""
+    fig, axes = _figure(1, 1, figsize=(7.5, 4.2))
+    ax = axes[0][0]
+    x = np.arange(len(border))
+    ax.bar(x, border["border_share_mean"], yerr=border["border_share_std"], width=0.62,
+           color=[MODEL_COLORS[m] for m in border["model"]], edgecolor=SURFACE, linewidth=2,
+           error_kw={"ecolor": INK_MUTED, "elinewidth": 1, "capsize": 3})
+    uniform = 1 - (1 - 2 * BORDER_FRACTION) ** 2
+    ax.axhline(uniform, color=INK_MUTED, linestyle="--", linewidth=1)
+    ax.annotate("evenly spread map", (-0.45, uniform), textcoords="offset points", xytext=(0, 5),
+                ha="left", fontsize=8.5, color=INK_SECONDARY)
+    ax.set_xticks(x, [MODEL_LABELS[m] for m in border["model"]], rotation=25, ha="right")
+    ax.set_ylabel("Share of heat on the image frame")
+    ax.set_ylim(0, 0.8)
+    ax.set_title(f"Grad-CAM heat on the outer {BORDER_FRACTION:.0%} of the image\n"
+                 "8 fixed test images, mean ± std over 3 seeds — lower = more focus on the central lung area",
+                 fontsize=10)
+    _style(ax)
+    fig.tight_layout()
+    fig.savefig(path, dpi=150, facecolor=SURFACE)
+    plt.close(fig)
+
+
+def build_gradcam_report(results_dir: Path, figures_dir: Path, data_dir: Path | None, seed: int = 42) -> pd.DataFrame:
+    """Border-attention table + bar chart; the image grid as well when the dataset folder is available."""
+    results_dir, figures_dir = Path(results_dir), Path(figures_dir)
+    figures_dir.mkdir(parents=True, exist_ok=True)
+    runs = collect_runs(results_dir)
+    border = gradcam_border_table(runs, results_dir)
+    border.to_csv(results_dir / "gradcam_border_share.csv", index=False, lineterminator="\n", float_format="%.4f")
+    plot_border_share(border, figures_dir / "gradcam_border_share.png")
+    if data_dir is not None:
+        plot_gradcam_comparison(runs, results_dir, data_dir, seed, figures_dir / f"gradcam_comparison_seed{seed}.jpg")
+    return border
 
 
 def build_report(results_dir: Path, figures_dir: Path) -> pd.DataFrame:
