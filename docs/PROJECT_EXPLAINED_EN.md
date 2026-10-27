@@ -338,8 +338,8 @@ $w_{\text{PNEUMONIA}} = 1/3300 = 3.03 \cdot 10^{-4}$. Each draw is NORMAL with p
 $N = 4{,}447$ images **with replacement**, so ≈ 2,223.5 of each class:
 
 - each NORMAL image is drawn on average $\lambda = 2223.5 / 1147 = 1.94$ times per epoch; the chance a given NORMAL image
-  is not drawn at all in an epoch is $\approx e^{-1.94} = 14\%$;
-- each PNEUMONIA image is drawn $\lambda = 2223.5 / 3300 = 0.67$ times; chance of not being drawn $\approx e^{-0.67} = 51\%$.
+  is not drawn at all in an epoch is $\approx e^{-1.94} = 0.14$ (14 %);
+- each PNEUMONIA image is drawn $\lambda = 2223.5 / 3300 = 0.67$ times; chance of not being drawn $\approx e^{-0.67} = 0.51$ (51 %).
 
 (Number of draws of one image ≈ Poisson($\lambda$), so $P(0) = e^{-\lambda}$.) So within one epoch about half of the
 pneumonia images are skipped and normal images are repeated ~2×; over 25 epochs every image is seen many times.
@@ -1122,7 +1122,9 @@ the "R" side marker, shoulders, or traces of the different original image sizes 
 a simple proxy ([`border_share`](../pneumonia/compare.py#L272)): the share of the heat map's total "heat" lying in the
 outer 10 % frame of the image:
 
-$$\text{border share} = 1 - \frac{\sum_{(i,j) \in \text{inner } 80\% \times 80\%} L_{ij}}{\sum_{(i,j)} L_{ij}}$$
+$$\text{border share} = 1 - \frac{\sum_{(i,j) \in \text{inner area}} L_{ij}}{\sum_{(i,j)} L_{ij}}$$
+
+where the inner area is the central 80 % × 80 % of the image (rows and columns 22–201 of 0–223).
 
 A map spread evenly over the image gives $1 - 0.8^2 = 0.36$ (the frame is 36 % of the area). Lower = more focus on the
 centre (lungs). Per run: mean over the 8 fixed images; per model: mean ± std over the 3 seeds.
@@ -1374,7 +1376,7 @@ Answers are short; the section in brackets has the details.
 10. **Compute the sampler weights.** $1/1147 = 8.7 \cdot 10^{-4}$ and $1/3300 = 3.0 \cdot 10^{-4}$; sum of all weights = 2;
     $P(\text{NORMAL}) = 1147 \cdot 8.7 \cdot 10^{-4} / 2 = 0.5$ (3.6).
 11. **Does the sampler see every image each epoch?** No — draws with replacement. A pneumonia image is drawn on average
-    0.67 times per epoch, so $e^{-0.67} \approx 51\%$ of them are skipped in a given epoch; normal images ≈ 1.94 times
+    0.67 times per epoch, so $e^{-0.67} \approx 0.51$ (51 %) of them are skipped in a given epoch; normal images ≈ 1.94 times
     (Poisson approximation) (3.6).
 12. **Sampler vs class-weighted loss — difference?** Both make the classes count equally in expectation. The sampler
     changes *what* the model sees (balanced batches, repeated normal images); the weighted loss keeps the data and
