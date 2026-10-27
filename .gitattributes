@@ -1,0 +1,7 @@
+# Keep LF line endings in the working copy on every OS. Our scripts write LF files (split CSVs, results tables);
+# without this, Git on Windows (core.autocrlf=true) checks files out with CRLF and regenerated files look "modified".
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.npz binary
