@@ -1,6 +1,7 @@
 # Project Plan — Comparison of CNN Models in Pneumonia Image Classification
 
-> Status: **foundation, folder structure and hyperparameters agreed**. Work follows the team task spreadsheet (ID-1 … ID-18).
+> Status: **all tasks ID-1 … ID-18 done** — 18 training runs (6 models × 3 seeds) compared; summary in
+> [results/SUMMARY.md](../results/SUMMARY.md). Remaining items are optional extensions (section 12).
 
 ## 1. Goal
 
